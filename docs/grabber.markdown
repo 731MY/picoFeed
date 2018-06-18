@@ -124,40 +124,50 @@ How to write a grabber rules file?
 
 Add a PHP file to the directory `PicoFeed\Rules`, the filename must be the same as the domain name:
 
-Example with the BBC website, `www.bbc.co.uk.php`:
+Example with the CNN website, `edition.cnn.com.php`:
 
 ```php
 <?php
 return array(
     'grabber' => array(
         '%.*%' => array(
-            'test_url' => 'http://www.bbc.co.uk/news/world-middle-east-23911833',
+            'test_url' => 'https://edition.cnn.com/travel/article/longest-flight-seats/index.html',
             'body' => array(
-                '//div[@class="story-body"]',
+                '//div[@class="Article__pageTop"]',
+                '//div[@class="Article__wrapper"]',
             ),
             'strip' => array(
-                '//script',
-                '//form',
-                '//style',
-                '//*[@class="story-date"]',
-                '//*[@class="story-header"]',
-                '//*[@class="story-related"]',
-                '//*[contains(@class, "byline")]',
-                '//*[contains(@class, "story-feature")]',
-                '//*[@id="video-carousel-container"]',
-                '//*[@id="also-related-links"]',
-                '//*[contains(@class, "share") or contains(@class, "hidden") or contains(@class, "hyper")]',
-            )
-        )
-    )
+                '//div[@class="cnn_stryshrwdgtbtm"]',
+                '//div[@class="cnn_strybtmcntnt"]',
+                '//div[@class="cnn_strylftcntnt"]',
+                '//div[contains(@class, "cnnGalleryContainer")]',
+                '//div[contains(@class, "cnn_strylftcexpbx")]',
+                '//div[contains(@class, "articleGalleryNavContainer")]',
+                '//div[contains(@class, "cnnArticleGalleryCaptionControl")]',
+                '//div[contains(@class, "cnnArticleGalleryNavPrevNextDisabled")]',
+                '//div[contains(@class, "cnnArticleGalleryNavPrevNext")]',
+                '//div[contains(@class, "cnn_html_media_title_new")]',
+                '//div[contains(@id, "disqus")]',
+            ),
+            'callback'=>function($html){
+                return preg_replace_callback(
+                    '/https:\/\/dynaimage.cdn.cnn.com\/(.*?)\/(.*?)\/([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/i',
+                    function($match) {
+                        return urldecode($match[3]);
+                    },
+                    $html);
+            }
+        ),
+    ),
 );
 ```
-Each rule file can contain multiple rules, based so links to different website URLs can be handled differently. The first level key is a regex, which will be matched against the full path of the URL using **preg_match**, e.g. for **http://www.bbc.co.uk/news/world-middle-east-23911833?test=1** the URL that would be matched is **/news/world-middle-east-23911833?test=1**
+Each rule file can contain multiple rules, based so links to different website URLs can be handled differently. The first level key is a regex, which will be matched against the full path of the URL using **preg_match**, e.g. for **https://edition.cnn.com/travel/article/longest-flight-seats/index.html** the URL that would be matched is **/travel/article/longest-flight-seats/index.html**
 
 Each rule has the following keys:
 * **body**: An array of xpath expressions which will be extracted from the page
 * **strip**: An array of xpath expressions which will be removed from the matched content
 * **test_url**: A test url to a matching page to test the grabber
+* **callback**: A function to manipulate the filtered html content
 
 Don't forget to send a pull request or a ticket to share your contribution with everybody,
 

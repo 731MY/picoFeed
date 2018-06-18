@@ -19,7 +19,15 @@ return array(
                 '//div[contains(@class, "cnnArticleGalleryNavPrevNext")]',
                 '//div[contains(@class, "cnn_html_media_title_new")]',
                 '//div[contains(@id, "disqus")]',
-            )
+            ),
+            'callback'=>function($html){
+                return preg_replace_callback(
+                    '/https:\/\/dynaimage.cdn.cnn.com\/(.*?)\/(.*?)\/([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/i',
+                    function($match) {
+                        return urldecode($match[3]);
+                    },
+                    $html);
+            }
         ),
     ),
 );

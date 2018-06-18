@@ -77,6 +77,10 @@ class RuleParser implements ParserInterface
             }
         }
 
+        if(array_key_exists('callback',$this->rules) && is_callable($this->rules['callback'])){
+            $content = $this->rules['callback']($content);
+        }
+
         return $content;
     }
 
